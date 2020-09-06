@@ -25,10 +25,9 @@ public class TwitterClient {
         twitterProperty = new TwitterProperty();
     }
 
-    public Client create(BlockingQueue<String> msgQueue) {
+    public Client create(BlockingQueue<String> msgQueue, List<String> terms) {
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint hosebirdEndpoint = new StatusesFilterEndpoint();
-        List<String> terms = Lists.newArrayList("bitcoin");
         hosebirdEndpoint.trackTerms(terms);
 
         Authentication hosebirdAuth = new OAuth1(twitterProperty.getConsumerKey(), twitterProperty.getConsumerSecret(), twitterProperty.getToken(), twitterProperty.getTokenSecret());

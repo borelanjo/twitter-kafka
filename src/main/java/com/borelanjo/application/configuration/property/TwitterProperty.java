@@ -31,11 +31,6 @@ public class TwitterProperty {
     }
 
     public String getProperty(String key) {
-        String property = prop.getProperty(key);
-        if (property.startsWith("${")) {
-            String[] split = property.replace("${", "").replace("}", "").split(":");
-            return split[1];
-        }
         return prop.getProperty(key);
     }
 
