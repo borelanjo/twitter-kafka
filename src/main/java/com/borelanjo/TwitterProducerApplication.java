@@ -14,6 +14,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Objects.nonNull;
+
 public class TwitterProducerApplication {
 
     private Logger logger = LoggerFactory.getLogger("TwitterProducerApplication");
@@ -49,13 +51,8 @@ public class TwitterProducerApplication {
         try {
             while (!client.isDone()) {
                 String msg = msgQueue.poll(5, TimeUnit.SECONDS);
-                if (msg != null) {
-                    producer.send(new ProducerRecord<>("twitter_tweets", null, msg),
-                            (recordMetadata, e) -> {
-                                if (e != null) {
-                                    logger.error("Something bad happened", e);
-                                }
-                            });
+                if (nonNull(msg)) {
+                    send(producer, msg);
                 }
             }
         } catch (InterruptedException e) {
@@ -70,6 +67,15 @@ public class TwitterProducerApplication {
 
         logger.info("The end");
 
+    }
+
+    private void send(KafkaProducer<String, String> producer, String msg) {
+        producer.send(new ProducerRecord<>("twitter_tweets", null, msg),
+                (recordMetadata, e) -> {
+                    if (e != null) {
+                        logger.error("Something bad happened", e);
+                    }
+                });
     }
 
 }
