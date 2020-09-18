@@ -10,6 +10,7 @@
     <version>1.0</version>
     <modules>
         <module>twitter-producer</module>
+        <module>elasticsearch-consumer</module>
     </modules>
 
     <properties>
