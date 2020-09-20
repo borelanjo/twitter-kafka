@@ -1,36 +1,34 @@
 package com.borelanjo.elasticsearchconsumer.application.service;
 
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentType;
+import com.borelanjo.elasticsearchconsumer.domain.model.Tweet;
+import com.borelanjo.elasticsearchconsumer.domain.model.User;
+import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 @Service
+@Slf4j
 public class ConsumerService {
 
+    private final UserService userService;
     private final TweetService tweetService;
-    private final RestHighLevelClient client;
 
-    public ConsumerService(TweetService tweetService, RestHighLevelClient client) {
+    public ConsumerService(UserService userService, TweetService tweetService) {
+        this.userService = userService;
         this.tweetService = tweetService;
-        this.client = client;
     }
 
     @KafkaListener(topics = "twitter_tweets", groupId = "tweets")
     public void consumer(String message) {
-        IndexRequest indexRequest = new IndexRequest("tweet");
-        indexRequest.source(message, XContentType.JSON);
+        JsonObject jsonTweet = tweetService.getJsonTweet(message);
+        Tweet tweet = tweetService.extractedFrom(jsonTweet);
+        tweetService.create(tweet, tweet.getId().toString());
 
-        try {
-            IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Received Message in group tweets: " + message);
+        JsonObject jsonUser = userService.getJsonUser(jsonTweet);
+        User user = userService.extractedFrom(jsonUser);
+        userService.create(user, user.getId().toString());
+
+        log.info("Received Message in group tweets: " + message);
     }
 }
