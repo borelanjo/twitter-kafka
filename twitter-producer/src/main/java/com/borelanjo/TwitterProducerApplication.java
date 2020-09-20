@@ -20,7 +20,10 @@ public class TwitterProducerApplication {
 
     private Logger logger = LoggerFactory.getLogger("TwitterProducerApplication");
 
-    private List<String> terms = Lists.newArrayList("covid");
+    private List<String> terms = Lists.newArrayList("#playstation","#xbox","#pc",
+            "#xboxone","#nintendo","#gaminglife",
+            "#pcgamer","#nintendoswitch","#gamerlife",
+            "#gameplay","#retrogaming","#minecraft","#lol");
 
     public static void main(String[] args) {
         new TwitterProducerApplication().run();
