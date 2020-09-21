@@ -34,6 +34,7 @@ class TweetServiceTest {
         assertNotNull(tweet.getMentions());
         assertEquals(1, tweet.getMentions().size());
         assertEquals("gifsdeanimal", tweet.getMentions().get(0).getScreenName());
+        assertEquals("2020-09-20T13:13:23Z", tweet.getCreatedAt());
     }
 
     @Test

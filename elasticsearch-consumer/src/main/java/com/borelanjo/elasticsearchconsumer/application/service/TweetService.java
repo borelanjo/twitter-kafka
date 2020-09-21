@@ -7,8 +7,11 @@ import com.google.gson.JsonParser;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.stereotype.Service;
 
+import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TweetService extends ElasticSearchService<Tweet> {
@@ -49,7 +52,7 @@ public class TweetService extends ElasticSearchService<Tweet> {
                 .user(userService
                         .extractedFrom(userService.getJsonUser(jsonTweet)))
                 .mentions(getMentions(jsonTweet))
-                .createdAt(getAsString(jsonTweet, CREATED_AT))
+                .createdAt(getCreatedAt(jsonTweet))
                 .language(getAsString(jsonTweet, LANGUAGE))
                 .favorited(getAsBoolean(jsonTweet, FAVORITED))
                 .favoriteCount(getAsInt(jsonTweet, FAVORITE_COUNT))
@@ -61,6 +64,22 @@ public class TweetService extends ElasticSearchService<Tweet> {
                 .source(getAsString(jsonTweet, SOURCE))
                 .timestampMs(getAsLong(jsonTweet, TIMESTAMP_MS))
                 .build();
+    }
+
+    private String getCreatedAt(JsonObject jsonTweet) {
+        String[] split = getAsString(jsonTweet, CREATED_AT).split(" ");
+        return String.format("%s-%s-%sT%sZ", split[5], getMonth(split[1]), split[2], split[3]);
+    }
+
+    private String getMonth(String monthAbr) {
+        Optional<Month> optional = Arrays
+                .stream(Month.values())
+                .filter(m -> m.toString()
+                        .contains(monthAbr.toUpperCase()))
+                .findFirst();
+        return optional
+                .map(month -> String.format("%02d", month.getValue()))
+                .orElse(null);
     }
 
     private List<User> getMentions(JsonObject jsonTweet) {
